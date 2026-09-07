@@ -1,0 +1,45 @@
+﻿/*
+SOC Investigation Queries
+Purpose: Investigate Windows authentication failures and Sysmon process activity
+*/
+
+// 1. View recent failed Windows logins
+Event
+| where TimeGenerated > ago(30m)
+| where EventLog == "Security"
+| where EventID == 4625
+| project TimeGenerated, Computer, EventID, RenderedDescription
+| order by TimeGenerated desc
+
+
+// 2. Count failed logins by computer
+Event
+| where TimeGenerated > ago(30m)
+| where EventLog == "Security"
+| where EventID == 4625
+| summarize FailedAttempts = count(),
+            FirstSeen = min(TimeGenerated),
+            LastSeen = max(TimeGenerated)
+    by Computer
+| order by FailedAttempts desc
+
+
+// 3. Investigate Sysmon process creation
+Event
+| where TimeGenerated > ago(30m)
+| where EventLog == "Microsoft-Windows-Sysmon/Operational"
+| where EventID == 1
+| extend Image = extract(@"Image:\s+([^\s]+)", 1, RenderedDescription)
+| project TimeGenerated, Computer, Image, RenderedDescription
+| order by TimeGenerated desc
+
+
+// 4. Find PowerShell process executions
+Event
+| where TimeGenerated > ago(6h)
+| where EventLog == "Microsoft-Windows-Sysmon/Operational"
+| where EventID == 1
+| extend Image = extract(@"Image:\s+([^\s]+)", 1, RenderedDescription)
+| where Image endswith "powershell.exe"
+| project TimeGenerated, Computer, Image, RenderedDescription
+| order by TimeGenerated desc

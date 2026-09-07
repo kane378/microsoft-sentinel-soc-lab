@@ -1,0 +1,18 @@
+﻿/*
+Detection: Multiple Failed Windows Logins
+Data Source: Windows Security Event Logs
+Event ID: 4625
+Purpose: Detect repeated failed authentication attempts on a host
+*/
+
+Event
+| where TimeGenerated > ago(10m)
+| where EventLog == "Security"
+| where EventID == 4625
+| summarize FailedAttempts = count(),
+            FirstSeen = min(TimeGenerated),
+            LastSeen = max(TimeGenerated)
+    by Computer
+| where FailedAttempts >= 5
+| project FirstSeen, LastSeen, Computer, FailedAttempts
+| order by FailedAttempts desc

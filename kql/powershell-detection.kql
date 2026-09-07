@@ -1,0 +1,15 @@
+﻿/*
+Detection: Suspicious PowerShell Execution
+Data Source: Sysmon Operational Log
+Event ID: 1 - Process Create
+Purpose: Detect PowerShell processes created on a Windows endpoint
+*/
+
+Event
+| where TimeGenerated > ago(6h)
+| where EventLog == "Microsoft-Windows-Sysmon/Operational"
+| where EventID == 1
+| extend Image = extract(@"Image:\s+([^\s]+)", 1, RenderedDescription)
+| where Image endswith "powershell.exe"
+| project TimeGenerated, Computer, Image, RenderedDescription
+| order by TimeGenerated desc

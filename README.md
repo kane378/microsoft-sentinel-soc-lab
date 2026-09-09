@@ -1,365 +1,400 @@
-Microsoft Sentinel SOC Lab
+# 🛡️ Microsoft Sentinel SOC Lab
 
-End-to-End Windows SOC Monitoring, Detection Engineering & Incident Investigation
+### 🔎 End-to-End Windows Security Monitoring, Detection & Incident Investigation
 
-A hands-on Security Operations Center (SOC) lab built with
-Microsoft Sentinel, Azure Arc, Azure Monitor Agent (AMA), Azure Log
-Analytics, Windows Security Events, Sysmon, and Kusto Query Language
-(KQL).
+A practical Security Operations Center (SOC) lab built using **Microsoft Azure, Microsoft Sentinel, Azure Arc, Azure Monitor Agent (AMA), Data Collection Rules (DCR), Windows Security Logs, Sysmon, KQL, Analytics Rules, Security Alerts, Security Incidents, and MITRE ATT&CK**.
 
-This project demonstrates a complete security monitoring workflow:
+The project demonstrates how security telemetry can be collected from a Windows endpoint, centralized in Microsoft Sentinel, analyzed using KQL, and converted into actionable security alerts and incidents.
 
-Endpoint telemetry → Collection → Centralized logging → Detection
-engineering → Alert generation → Incident creation → Investigation →
-MITRE ATT&CK mapping
+---
 
-Lab status: End-to-end detection pipeline validated
-Environment: Windows 11 + Microsoft Azure
-Primary SIEM: Microsoft Sentinel
-Query language: KQL
+## 🎯 Project Objectives
 
-1. Project Overview
+The main objectives of this project are:
 
-The goal of this project was to build and validate a practical SOC
-monitoring environment around a Windows 11 endpoint.
+- 🖥️ Monitor a Windows 11 endpoint
+- 🔗 Connect the endpoint to Azure using Azure Arc
+- 📡 Install and configure Azure Monitor Agent (AMA)
+- 📋 Configure Data Collection Rules (DCR)
+- 📊 Send Windows security telemetry to Log Analytics
+- 🛡️ Configure Microsoft Sentinel
+- 🔎 Develop KQL detection queries
+- 🚨 Create Sentinel Analytics Rules
+- 📌 Generate and investigate security incidents
+- 🎯 Map detections to MITRE ATT&CK techniques
+- 🧪 Validate detections using controlled test activity
 
-The lab covers:
+---
 
-Windows Security Event Log collection
+# 🏗️ Architecture
 
-Sysmon endpoint telemetry
+The complete monitoring and detection flow is:
 
-Azure Arc endpoint onboarding
+```text
+                         🖥️ Windows 11 Endpoint
+                                  │
+                  ┌───────────────┴───────────────┐
+                  │                               │
+          🔐 Windows Security Logs              ⚙️ Sysmon
+                  │                               │
+                  └───────────────┬───────────────┘
+                                  │
+                                  ▼
+                           🔗 Azure Arc
+                                  │
+                                  ▼
+                    📡 Azure Monitor Agent (AMA)
+                                  │
+                                  ▼
+                     📋 Data Collection Rule
+                                  │
+                                  ▼
+                      📊 Log Analytics Workspace
+                                  │
+                                  ▼
+                         🛡️ Microsoft Sentinel
+                                  │
+                                  ▼
+                            🔎 KQL Queries
+                                  │
+                                  ▼
+                         🚨 Analytics Rules
+                                  │
+                                  ▼
+                           📢 Security Alerts
+                                  │
+                                  ▼
+                          📌 Security Incidents
+                                  │
+                                  ▼
+                     🔍 Investigation & Analysis
+                                  │
+                                  ▼
+                         🎯 MITRE ATT&CK Mapping
+☁️ Azure Resources
 
-Azure Monitor Agent (AMA)
+The lab was implemented using the following Azure resources:
 
-Data Collection Rules (DCR)
+Component	Configuration
+☁️ Subscription	Azure for Students
+📁 Resource Group	sentinel-soc-lab
+🌍 Region	Central India
+📊 Log Analytics Workspace	sentinel-law
+🔗 Azure Arc Machine	DESKTOP-00BENSL
+📡 Monitoring Agent	Azure Monitor Agent
+📋 Data Collection Rule	sentinel-windows-security
+🛡️ SIEM	Microsoft Sentinel
+💻 Endpoint	Windows 11 Home
+1️⃣ Create the Azure Resource Group
 
-Centralized logging in Azure Log Analytics
+The first step was creating a dedicated Resource Group for the SOC lab.
 
-KQL-based security investigation
+Resource Group
+      │
+      ├── Log Analytics Workspace
+      ├── Microsoft Sentinel
+      ├── Azure Arc resources
+      └── Monitoring configuration
+📌 Configuration
 
-Microsoft Sentinel Analytics Rules
+Resource Group:
 
-Security alert generation
+sentinel-soc-lab
 
-Automatic incident creation
+Region:
 
-Detection refinement and false-positive analysis
+Central India
 
-MITRE ATT&CK mapping
+The Resource Group provides a central location for managing the Azure resources used by the project.
 
-SOC investigation and response methodology
+2️⃣ Create the Log Analytics Workspace
 
-All security activity used for validation was intentionally generated in
-a controlled lab environment.
+A Log Analytics Workspace was created to store and query security telemetry collected from the Windows endpoint.
 
-2. SOC Architecture
-
-flowchart LR
-    A[Windows 11 Endpoint] --> B[Windows Security Events]
-    A --> C[Sysmon]
-    B --> D[Azure Arc]
-    C --> D
-    D --> E[Azure Monitor Agent]
-    E --> F[Data Collection Rule]
-    F --> G[Log Analytics Workspace]
-    G --> H[Microsoft Sentinel]
-    H --> I[KQL Detection Queries]
-    I --> J[Analytics Rules]
-    J --> K[Security Alerts]
-    K --> L[Security Incidents]
-    L --> M[SOC Investigation]
-    M --> N[MITRE ATT&CK Mapping]
-    N --> O[Analyst Assessment & Response]
-
-End-to-End Flow
-
-Windows 11 Endpoint
-        ↓
-Windows Security Events + Sysmon
-        ↓
-Azure Arc
-        ↓
-Azure Monitor Agent (AMA)
-        ↓
-Data Collection Rule (DCR)
-        ↓
-Azure Log Analytics
-        ↓
-Microsoft Sentinel
-        ↓
-KQL
-        ↓
-Analytics Rules
-        ↓
-Security Alerts
-        ↓
-Security Incidents
-        ↓
-Investigation
-        ↓
-MITRE ATT&CK
-        ↓
-Analyst Assessment & Response
-
-3. Lab Environment
-
-Component                 Configuration
-
-Endpoint                  Windows 11 Home
-Endpoint Management       Azure Arc
-Monitoring Agent          Azure Monitor Agent (AMA)
-Collection                Data Collection Rule (DCR)
-SIEM                      Microsoft Sentinel
-Log Platform              Azure Log Analytics
-Query Language            Kusto Query Language (KQL)
-Endpoint Telemetry        Sysmon
-Detection Framework       MITRE ATT&CK
-Azure Region              Central India
-Resource Group            sentinel-soc-lab
-Log Analytics Workspace   sentinel-law
-DCR                       sentinel-windows-security
-Endpoint                  DESKTOP-00BENSL
-
-4. Azure Resource Setup
-
-The lab was deployed using an Azure for Students subscription.
-
-Core resources:
-
-Subscription
-└── Resource Group: sentinel-soc-lab
-    ├── Log Analytics Workspace: sentinel-law
-    ├── Microsoft Sentinel
-    └── Azure Arc connected endpoint
-        └── DESKTOP-00BENSL
-
-Microsoft Sentinel was connected to the Log Analytics workspace and used
-as the SIEM and detection layer.
-
-5. Endpoint Onboarding with Azure Arc
-
-The Windows 11 endpoint was onboarded to Azure using Azure Arc.
-
-Azure Arc allows a non-Azure Windows machine to be represented and
-managed as an Azure resource.
-
-Endpoint
-
-Computer: DESKTOP-00BENSL
-OS: Windows 11 Home
-Azure Arc: Connected
-
-The successful Arc connection provided the foundation for installing and
-managing the Azure Monitor Agent.
-
-6. Azure Monitor Agent
-
-The Azure Monitor Agent (AMA) was installed on the Windows endpoint.
-
-AMA is responsible for collecting configured telemetry and forwarding it
-to Azure according to the Data Collection Rule.
-
-The AMA extension was successfully installed and reported a
-healthy/succeeded state.
-
-7. Data Collection Rule
-
-A Data Collection Rule named:
-
-sentinel-windows-security
-
-was configured to collect Windows Event Logs and send them to:
-
+📊 Workspace
 sentinel-law
 
-Windows Security Events
+The workspace acts as the central log repository before the data is analyzed through Microsoft Sentinel.
 
-Security events were collected from the Windows Security log, including
-authentication-related events.
+3️⃣ Enable Microsoft Sentinel
 
-The primary authentication event used in this project was:
+Microsoft Sentinel was enabled on the Log Analytics Workspace.
 
-Event ID 4625
-An account failed to log on
+sentinel-law
+      │
+      ▼
+Microsoft Sentinel
 
-Sysmon Events
+Microsoft Sentinel provides the SIEM functionality required for:
 
-The DCR was later updated to collect the Sysmon operational channel:
+🔎 Log analysis
+🚨 Alert generation
+📌 Incident management
+🧑‍💻 Investigation
+🎯 Threat detection
+4️⃣ Connect Windows Endpoint Using Azure Arc
+
+The Windows 11 machine was onboarded to Azure using Azure Arc.
+
+💻 Endpoint
+DESKTOP-00BENSL
+
+Azure Arc allows the Windows machine to be represented and managed as an Azure resource.
+
+✅ Validation
+
+The Azure Arc agent was successfully connected.
+
+Status: Connected
+Agent Version: 1.67.03504.3207
+Operating System: Windows 11 Home
+5️⃣ Install Azure Monitor Agent
+
+Azure Monitor Agent (AMA) was installed on the Azure Arc connected machine.
+
+📡 Agent
+AzureMonitorWindowsAgent
+Configuration
+Version: 1.45.0.0
+Status: Succeeded
+Automatic Upgrade: Enabled
+
+AMA is responsible for collecting telemetry from the Windows endpoint and sending it according to the configured Data Collection Rule.
+
+6️⃣ Configure Data Collection Rule
+
+A Data Collection Rule (DCR) was created to define which Windows logs should be collected.
+
+📋 DCR
+sentinel-windows-security
+Destination
+sentinel-law
+
+The DCR was configured to collect:
+
+🔐 Windows Security Events
+
+Windows Security events were collected for authentication and security monitoring.
+
+Important Event IDs included:
+
+4625 → Failed logon
+⚙️ Sysmon Events
+
+Sysmon operational events were also configured:
 
 Microsoft-Windows-Sysmon/Operational
 
-This enabled endpoint process telemetry, including:
+This allowed process creation and other endpoint telemetry to be monitored.
 
-Event ID 1 - Process Create
-Event ID 5 - Process Terminated
+7️⃣ Validate Agent Connectivity
 
-8. Telemetry Validation
+After configuring Azure Arc, AMA, and the DCR, the next step was validating that telemetry was actually reaching Azure.
 
-Before creating detections, every stage of the telemetry pipeline was
-validated.
-
-AMA Heartbeat
-
-The following KQL query was used to confirm that the endpoint and AMA
-were communicating with Azure:
+The following KQL query was used:
 
 Heartbeat
 | where TimeGenerated > ago(30m)
 | project TimeGenerated, Computer, Category, OSType
 | order by TimeGenerated desc
+✅ Result
 
-Heartbeat records confirmed that:
+Heartbeat events were received from:
 
-The endpoint was connected.
+DESKTOP-00BENSL
 
-AMA was running.
+This confirmed that Azure Monitor Agent was communicating successfully with the Log Analytics Workspace.
 
-Telemetry was reaching Log Analytics.
+8️⃣ Validate Windows Security Events
 
-Windows Security Log Validation
+The expected SecurityEvent table did not contain the required events in this environment.
 
-The expected SecurityEvent table did not return the required results
-in this environment.
+Instead of assuming that logging was broken, the generic Event table was investigated.
 
-Instead of assuming that ingestion had failed, the generic Event table
-was investigated:
+The following query was used:
 
 Event
 | where TimeGenerated > ago(30m)
 | where EventLog == "Security"
 | project TimeGenerated, Computer, EventID, RenderedDescription
 | order by TimeGenerated desc
+✅ Result
 
-This confirmed that Windows Security events were successfully arriving
-in Log Analytics.
+Windows Security events were successfully found in the Event table.
 
-This was an important troubleshooting step: an empty expected table
-does not necessarily mean that telemetry collection is broken.
+For example:
 
-9. Event ID 4625 --- Failed Authentication Detection
+Event ID: 4798
 
-Windows Event ID 4625 represents a failed account logon.
+This confirmed that Windows Security telemetry was reaching Log Analytics.
 
-A controlled authentication test was performed using a temporary local
-test account.
+9️⃣ Validate Failed Login Events
 
-The resulting telemetry was verified through the complete pipeline:
+A controlled failed-login test was performed to generate Windows Event ID 4625.
 
-Windows Security Log
-        ↓
-Azure Monitor Agent
-        ↓
-Log Analytics
-        ↓
-KQL
+The following KQL query was used:
 
-Multiple Event ID 4625 records were observed in Log Analytics and were
-then used to build the Sentinel detection.
+Event
+| where TimeGenerated > ago(15m)
+| where EventLog == "Security"
+| where EventID == 4625
+| project TimeGenerated, Computer, EventID, RenderedDescription
+| order by TimeGenerated desc
+🔐 Event ID 4625
 
-10. Sysmon Integration
+Event ID 4625 represents:
 
-Sysmon was installed on the Windows endpoint to provide richer
-process-level visibility.
+An account failed to log on.
 
-Installation was verified using:
+Multiple events were successfully detected.
+
+⚠️ The wrong-password testing was stopped after validation to avoid unnecessary account lockout or excessive failed-login activity.
+
+🔟 Install and Configure Sysmon
+
+Sysmon was installed on the Windows endpoint using Microsoft Sysinternals.
+
+Installation was performed from an Administrator PowerShell session.
+
+cd .\Sysmon
+.\Sysmon64.exe -accepteula -i
+✅ Validation
+
+Sysmon was verified using:
 
 Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -MaxEvents 5
 
-The endpoint generated Sysmon telemetry including:
+Sysmon Event IDs including:
 
-Event ID 1  → Process Create
-Event ID 5  → Process Terminated
+Event ID 1 → Process Creation
+Event ID 5 → Process Termination
 
-The DCR was then configured to collect:
+were observed.
 
-Microsoft-Windows-Sysmon/Operational
+1️⃣1️⃣ Validate Sysmon Events in Sentinel
 
-Sysmon Event ID 1 records were successfully observed in Log Analytics.
+The Sysmon events were then searched in Log Analytics.
 
-11. Detection Engineering
+Event
+| where TimeGenerated > ago(1h)
+| where EventLog == "Microsoft-Windows-Sysmon/Operational"
+| where EventID == 1
+| project TimeGenerated, Computer, EventID, RenderedDescription
+| order by TimeGenerated desc
+✅ Result
 
-Two primary Microsoft Sentinel Analytics Rules were implemented and
-validated.
+Sysmon Event ID 1 process creation events were successfully received.
 
-Detection 1 --- Multiple Failed Windows Logins
+This confirmed the complete telemetry path:
 
-Rule
+Windows
+   ↓
+Sysmon
+   ↓
+AMA
+   ↓
+DCR
+   ↓
+Log Analytics
+   ↓
+Microsoft Sentinel
+🚨 Detection Engineering
 
-SOC - Multiple Failed Windows Logins
+Two main security detections were implemented.
 
-Objective
+🔐 Detection 1
+Multiple Failed Windows Logins
 
-Detect repeated failed authentication attempts on a Windows endpoint
-that could indicate password guessing, brute-force activity, or another
-authentication-related issue.
+        +
 
-Configuration
+⚡ Detection 2
+Suspicious PowerShell / Command Shell Execution
+🔐 Detection 1 — Multiple Failed Windows Logins
+🎯 Objective
 
-Property            Value
+Detect repeated failed Windows authentication attempts that may indicate brute-force activity.
 
-Data Source         Windows Security Event Log
-Event               4625
-Severity            Medium
-Tactic              Credential Access
-Technique           T1110 - Brute Force
-Detection Window    10 minutes
-Threshold           5 or more failures
-Frequency           5 minutes
-Incident Creation   Enabled
-
-Detection Query
-
+KQL
 Event
 | where TimeGenerated > ago(10m)
 | where EventLog == "Security"
 | where EventID == 4625
-| summarize
-    FailedAttempts = count(),
-    FirstSeen = min(TimeGenerated),
-    LastSeen = max(TimeGenerated)
-    by Computer
+| summarize FailedAttempts = count() by Computer
 | where FailedAttempts >= 5
-| project FirstSeen, LastSeen, Computer, FailedAttempts
-| order by FailedAttempts desc
+⚙️ Analytics Rule Configuration
+Setting	Value
+📌 Rule Name	SOC - Multiple Failed Windows Logins
+🚨 Severity	Medium
+🎯 Tactic	Credential Access
+🎯 Technique	T1110 – Brute Force
+⏱️ Query Period	10 minutes
+🔄 Frequency	5 minutes
+🔢 Threshold	5 or more failed attempts
+📌 Incident Creation	Enabled
+🧪 Failed Login Detection Validation
 
-Detection Logic
+A temporary test account was created:
 
-The rule looks for:
+SentinelTest
 
-5 or more Event ID 4625 events
-within a 10-minute investigation window
+Controlled failed authentication attempts were generated.
 
-When the threshold is reached, Sentinel generates a security alert and
-creates an incident.
+The following command was used:
 
-Detection 2 --- Suspicious PowerShell Execution
+net use \\127.0.0.1\IPC$ /user:.\SentinelTest WrongPassword123!
 
-Rule
+The command produced:
 
-SOC - Suspicious PowerShell or Command Shell Execution
+System error 1326
 
-Objective
+A corresponding Windows Security Event ID 4625 was generated.
 
-Detect PowerShell execution using Sysmon Process Creation telemetry.
+The events were then confirmed in Log Analytics.
 
-PowerShell is a legitimate administrative tool, but it is also
-frequently used by attackers for execution and post-compromise activity.
+✅ Detection Result
+Windows Event 4625
+        ↓
+Log Analytics
+        ↓
+KQL Detection
+        ↓
+Analytics Rule
+        ↓
+🚨 Security Alert
+        ↓
+📌 Security Incident #4
+⚡ Detection 2 — Suspicious PowerShell Execution
+🎯 Objective
 
-Configuration
+Detect PowerShell process execution using Sysmon process creation events.
 
-Property            Value
+An initial query searched for several command-line tools:
 
-Data Source         Sysmon Operational Log
-Event               Event ID 1 - Process Create
-Severity            Medium
-Tactic              Execution
-Technique           T1059 - Command and Scripting Interpreter
-Sub-technique       T1059.001 - PowerShell
-Incident Creation   Enabled
+Event
+| where TimeGenerated > ago(1h)
+| where EventLog == "Microsoft-Windows-Sysmon/Operational"
+| where EventID == 1
+| where RenderedDescription has_any (
+    "powershell.exe",
+    "cmd.exe",
+    "wscript.exe",
+    "cscript.exe"
+)
+| project TimeGenerated, Computer, EventID, RenderedDescription
+| order by TimeGenerated desc
+🛠️ Detection Query Refinement
 
-Detection Query
+The initial query produced a false positive.
+
+For example, a conhost.exe event matched because powershell.exe appeared in the ParentImage information.
+
+❌ Problem
+
+The query was detecting the presence of the string rather than confirming that PowerShell itself was the executed process.
+
+✅ Solution
+
+The actual process Image field was extracted from RenderedDescription.
 
 Event
 | where TimeGenerated > ago(6h)
@@ -370,611 +405,450 @@ Event
 | project TimeGenerated, Computer, Image, RenderedDescription
 | order by TimeGenerated desc
 
-12. Detection Refinement & False-Positive Analysis
+This provided a more precise PowerShell detection.
 
-The initial PowerShell detection searched the complete Sysmon event
-description:
+🧪 PowerShell Detection Validation
 
-RenderedDescription has_any (
-    "powershell.exe",
-    "cmd.exe",
-    "wscript.exe",
-    "cscript.exe"
-)
+Controlled PowerShell commands were executed:
 
-During testing, this approach was found to be too broad.
+powershell.exe -NoProfile -Command "Write-Output 'Sentinel Sysmon test'"
 
-For example, a conhost.exe process could contain powershell.exe in
-the ParentImage field. Searching the complete description could
-therefore identify the child process as PowerShell even when the actual
-process image was different.
+and:
 
-Refined Detection
+powershell.exe -NoProfile -Command "Write-Output 'Sentinel SOC detection test'"
 
-The detection was changed to extract the actual Image field:
+Sysmon recorded the process creation events.
 
-| extend Image = extract(@"Image:\s+([^\s]+)", 1, RenderedDescription)
-| where Image endswith "powershell.exe"
+The events were then detected through KQL.
 
-This refinement makes the detection more precise because it evaluates
-the actual process executable rather than simply searching for the
-string powershell.exe anywhere in the event.
+🎯 MITRE ATT&CK
+T1059
+Command and Scripting Interpreter
 
-SOC Lesson
+T1059.001
+PowerShell
+🚨 Analytics Rules
 
-Detection rules should be tested against real telemetry and refined
-when field context creates false positives.
+The project contains two Sentinel Analytics Rules.
 
-This is an important part of detection engineering: high-quality
-detections are not simply written once; they are validated,
-investigated, and improved.
+🔐 Rule 1
+SOC - Multiple Failed Windows Logins
 
-13. Analytics Rule → Alert → Incident
+Purpose:
 
-Both detections were tested using controlled security activity.
+Detect repeated Windows authentication failures.
 
-The complete Sentinel pipeline was validated:
+MITRE:
 
-Endpoint Activity
-       ↓
-Windows / Sysmon Telemetry
-       ↓
-Azure Monitor Agent
-       ↓
-Log Analytics
-       ↓
-KQL Detection
-       ↓
-Sentinel Analytics Rule
-       ↓
-Security Alert
-       ↓
-Security Incident
-       ↓
-SOC Investigation
+Credential Access
+└── T1110 Brute Force
+⚡ Rule 2
+SOC - Suspicious PowerShell or Command Shell Execution
 
-PowerShell Detection
+Purpose:
 
-Controlled PowerShell execution generated Sysmon Event ID 1 telemetry.
+Detect suspicious command or PowerShell process execution.
 
-The corresponding Analytics Rule successfully generated Sentinel
-security alerts and incidents.
+MITRE:
 
-Failed Login Detection
+Execution
+└── T1059 Command and Scripting Interpreter
+📢 Security Alerts
 
-Controlled failed authentication activity generated multiple Event ID
-4625 events.
+When the Analytics Rules matched the configured conditions, Microsoft Sentinel generated security alerts.
 
-After the threshold was reached, the Sentinel Analytics Rule generated
-security alerts and an associated incident.
+The alerts were validated through the Sentinel backend and Log Analytics.
 
-This validated that the project was not limited to log collection: the
-telemetry was successfully converted into actionable SOC detections.
+Example query:
 
-14. Incident Investigation
+SecurityAlert
+| where TimeGenerated > ago(1h)
+| project
+    TimeGenerated,
+    AlertName,
+    AlertSeverity,
+    ProviderName
+| order by TimeGenerated desc
+✅ Result
 
-A generated failed-login incident was investigated using KQL.
+Alerts were successfully generated for the configured detections.
 
-Incident
+📌 Security Incidents
+
+Alerts were correlated into Microsoft Sentinel security incidents.
+
+Incidents were checked using:
+
+SecurityIncident
+| where TimeGenerated > ago(24h)
+| project
+    TimeGenerated,
+    IncidentNumber,
+    Title,
+    Status,
+    Severity
+| order by TimeGenerated desc
+
+This confirmed that the detection-to-incident workflow was functioning.
+
+🔎 Incident #4 — Investigation
+
+The validated failed-login detection generated:
 
 Incident Number: 4
 Title: SOC - Multiple Failed Windows Logins
 Severity: Medium
 Status: New
-Affected Host: DESKTOP-00BENSL
+Host: DESKTOP-00BENSL
+🧪 Investigation
 
-Investigation Query
+The incident was investigated using the underlying Event ID 4625 records.
 
+The events were aggregated to confirm that the configured threshold had been satisfied.
+
+🧑‍💻 Analyst Assessment
+Detection:        ✅ Triggered
+Threshold:        ✅ Satisfied
+Events:           ✅ Correlated
+Host:             DESKTOP-00BENSL
+Activity:         🧪 Controlled test
+Confirmed Attack: ❌ No
+
+The activity was intentionally generated for detection validation and should not be interpreted as a confirmed malicious attack.
+
+🎯 MITRE ATT&CK Mapping
+
+The implemented detections were mapped to MITRE ATT&CK techniques.
+
+Detection	Tactic	Technique
+🔐 Multiple Failed Logins	Credential Access	T1110 – Brute Force
+⚡ PowerShell Execution	Execution	T1059 – Command and Scripting Interpreter
+⚡ PowerShell	Execution	T1059.001 – PowerShell
+
+This mapping helps analysts understand the potential attack behavior represented by each detection.
+
+🛠️ Issues Faced & Solutions
+1️⃣ SecurityEvent Table Did Not Show Events
+❌ Problem
+
+The expected SecurityEvent table did not contain the required Windows Security events.
+
+🔍 Investigation
+
+The generic Event table was checked.
+
+✅ Solution
+
+Security events were found using:
+
+Event
+| where EventLog == "Security"
+
+The project continued using the table that actually contained the collected telemetry.
+
+2️⃣ Initial PowerShell Query Produced False Positives
+❌ Problem
+
+The initial query matched conhost.exe because powershell.exe appeared in parent process information.
+
+🔍 Cause
+
+The query searched the entire RenderedDescription.
+
+✅ Solution
+
+The actual Image field was extracted and checked specifically for:
+
+powershell.exe
+
+This improved detection precision.
+
+3️⃣ Failed Login Analytics Rule Timing
+❌ Problem
+
+The initial failed-login detection used a short five-minute query window, which could cause timing issues between event ingestion and rule execution.
+
+✅ Solution
+
+The detection was adjusted to:
+
+Lookback: 10 minutes
+Frequency: 5 minutes
+
+The KQL query was also changed to:
+
+ago(10m)
+
+This provided a more reliable detection window.
+
+4️⃣ Microsoft Sentinel / Defender Portal Redirect Issue
+❌ Problem
+
+The Microsoft Defender portal Analytics interface repeatedly redirected back to the SIEM Workspaces page instead of opening the Analytics Rules interface.
+
+The workspace was already connected and configured.
+
+🔍 Investigation
+
+The Sentinel backend continued to function correctly even though the portal interface was problematic.
+
+✅ Solution
+
+The Analytics Rules were created and verified through the Sentinel backend/API.
+
+The following were successfully confirmed:
+
+✅ Analytics Rules existed
+✅ Rules were enabled
+✅ Correct severity was configured
+✅ MITRE tactics/techniques were configured
+✅ Security alerts were generated
+✅ Security incidents were generated
+✅ Incidents could be investigated through Log Analytics
+
+Therefore, the portal UI issue did not prevent completion of the SOC workflow.
+
+🔎 Investigation Queries
+
+The repository contains reusable KQL investigation queries.
+
+🔐 Recent Failed Logins
 Event
 | where TimeGenerated > ago(30m)
 | where EventLog == "Security"
 | where EventID == 4625
-| project
-    TimeGenerated,
-    Computer,
-    EventID,
-    RenderedDescription
+| project TimeGenerated, Computer, EventID, RenderedDescription
 | order by TimeGenerated desc
-
-Aggregation Query
-
+📊 Failed Login Count
 Event
 | where TimeGenerated > ago(30m)
 | where EventLog == "Security"
 | where EventID == 4625
-| summarize
-    FailedAttempts = count(),
-    FirstSeen = min(TimeGenerated),
-    LastSeen = max(TimeGenerated)
-    by Computer
+| summarize FailedAttempts = count() by Computer
 | order by FailedAttempts desc
-
-The investigation confirmed repeated failed authentication events on:
-
-DESKTOP-00BENSL
-
-The event count satisfied the configured detection threshold.
-
-15. Analyst Assessment
-
-The failed-login activity was intentionally generated as part of the SOC
-validation process.
-
-A temporary local test account was used to create controlled
-authentication failures.
-
-Therefore, the final analyst assessment was:
-
-Assessment            Result
-
-Detection             Validated
-Activity              Controlled Test
-Detection Threshold   Satisfied
-Confirmed Attack      No
-
-The incident demonstrates that the detection mechanism can identify
-repeated authentication failures. However, the controlled test itself
-should not be classified as a real brute-force attack.
-
-In a production SOC, the analyst would need additional evidence before
-determining malicious intent.
-
-16. MITRE ATT&CK Mapping
-
-The implemented detections were mapped to relevant MITRE ATT&CK
-techniques.
-
-Detection               Tactic                  MITRE ATT&CK
-
-Multiple Failed Windows Credential Access       T1110 - Brute Force
-Logins
-
-Suspicious PowerShell   Execution               T1059 - Command and
-Scripting Interpreter
-
-PowerShell              Execution               T1059.001 - PowerShell
-
-MITRE ATT&CK mapping provides a standardized way to describe adversary
-behaviors represented by security detections.
-
-Important: A technique mapping describes the behavior represented
-by the detection; it does not by itself prove that an actual attack
-occurred.
-
-17. SOC Investigation Methodology
-
-When an alert or incident is generated, an analyst should follow a
-structured investigation process.
-
-Step 1 --- Identify the Host
-
-Determine which endpoint generated the activity.
-
-Step 2 --- Identify the Account or Process
-
-For authentication detections:
-
-Identify the targeted account.
-
-Review authentication details.
-
-Determine whether the account is expected.
-
-For process detections:
-
-Identify the executable.
-
-Review the process path.
-
-Review the user context.
-
-Examine the parent process.
-
-Step 3 --- Establish a Timeline
-
-Determine:
-
-First occurrence
-
-Last occurrence
-
-Number of events
-
-Related activity before the alert
-
-Related activity after the alert
-
-Step 4 --- Review Related Events
-
-Search for:
-
-Successful logons
-
-Additional failed logons
-
-Process creation
-
-PowerShell activity
-
-Related endpoint activity
-
-Other suspicious behavior
-
-Step 5 --- Determine Intent
-
-Classify the activity as:
-
-Expected
-Suspicious
-Malicious
-Controlled Testing
-
-Step 6 --- Map to MITRE ATT&CK
-
-Map confirmed or relevant adversary behavior to the appropriate ATT&CK
-technique.
-
-Step 7 --- Respond
-
-Depending on the investigation, response actions may include:
-
-Credential protection
-
-Account investigation
-
-Endpoint isolation
-
-Process termination
-
-Additional threat hunting
-
-Escalation to higher SOC tiers
-
-Automated response playbooks
-
-18. KQL Query Repository
-
-The kql/ directory contains the queries used for detection and
-investigation.
-
-kql/
-├── failed-login-detection.kql
-├── powershell-detection.kql
-└── investigation-queries.kql
-
-These queries can be imported, modified, or extended for future
-Microsoft Sentinel investigations.
-
-19. Repository Structure
-
+⚙️ Sysmon Process Creation
+Event
+| where TimeGenerated > ago(30m)
+| where EventLog == "Microsoft-Windows-Sysmon/Operational"
+| where EventID == 1
+| project TimeGenerated, Computer, EventID, RenderedDescription
+| order by TimeGenerated desc
+⚡ PowerShell Process Investigation
+Event
+| where TimeGenerated > ago(30m)
+| where EventLog == "Microsoft-Windows-Sysmon/Operational"
+| where EventID == 1
+| extend Image = extract(@"Image:\s+([^\s]+)", 1, RenderedDescription)
+| where Image endswith "powershell.exe"
+| project TimeGenerated, Computer, Image, RenderedDescription
+| order by TimeGenerated desc
+📂 Repository Structure
 microsoft-sentinel-soc-lab/
 │
-├── README.md
-│
-├── architecture/
+├── 📁 architecture/
 │   └── sentinel-soc-architecture.md
 │
-├── kql/
+├── 📁 kql/
 │   ├── failed-login-detection.kql
 │   ├── powershell-detection.kql
 │   └── investigation-queries.kql
 │
-├── detections/
+├── 📁 detections/
 │   ├── multiple-failed-logins.md
 │   └── suspicious-powershell.md
 │
-├── investigations/
+├── 📁 investigations/
 │   └── incident-004.md
 │
-└── screenshots/
-    └── project evidence
+├── 📁 screenshots/
+│   ├── 01-azure-student-subscription.png
+│   ├── 02-resource-group.png
+│   ├── 03-log-analytics-workspace.png
+│   ├── 04-microsoft-sentinel.png
+│   ├── 05-azure-arc-onboarding-success.png
+│   ├── 06-azure-arc-machine-connected.png
+│   ├── 07-ama-extension-success.png
+│   ├── 08-data-collection-rule.png
+│   ├── 09-ama-heartbeat.png
+│   ├── 10-windows-security-events.png
+│   ├── 11-event-4625.png
+│   ├── 12-failed-login-kql.png
+│   ├── 13-sysmon-installed.png
+│   ├── 14-sysmon-event-1.png
+│   ├── 15-sysmon-kql.png
+│   ├── 16-failed-login-analytics-rule.png
+│   ├── 17-powershell-analytics-rule.png
+│   ├── 18-security-alert.png
+│   ├── 19-security-incident.png
+│   ├── 20-incident-004-investigation.png
+│   └── 21-mitre-attack-mapping.png
+│
+└── 📄 README.md
+📜 KQL Files
 
-20. Project Evidence
+All KQL queries are stored inside the:
 
-The screenshots/ directory contains implementation and validation
-evidence collected during the lab.
+kql/
 
-Evidence includes:
+directory.
 
-Azure subscription
+🔐 failed-login-detection.kql
 
-Resource Group
+Contains the detection logic for repeated Windows Event ID 4625 failures.
 
+⚡ powershell-detection.kql
+
+Contains the refined Sysmon PowerShell process detection.
+
+🔎 investigation-queries.kql
+
+Contains queries used during incident investigation and validation.
+
+These files are KQL source files, not PowerShell or CMD scripts.
+
+They can be copied into:
+
+Azure Portal
+    ↓
 Log Analytics Workspace
+    ↓
+sentinel-law
+    ↓
+Logs
+    ↓
+Paste KQL
+    ↓
+Run
 
-Microsoft Sentinel
+The detection queries can also be used as the query logic for Microsoft Sentinel Analytics Rules.
 
-Azure Arc
+📸 Evidence
 
-Azure Monitor Agent
+The screenshots/ directory contains evidence collected during the implementation.
 
-Data Collection Rule
+The evidence demonstrates:
 
-Sysmon installation
+☁️ Azure resource configuration
+🔗 Azure Arc onboarding
+📡 AMA installation
+📋 DCR configuration
+💓 Agent heartbeat
+🔐 Windows Security events
+⚙️ Sysmon installation
+🔎 KQL queries
+🚨 Analytics Rules
+📢 Security Alerts
+📌 Security Incidents
+🔍 Incident investigation
+🎯 MITRE ATT&CK mapping
+🔐 Security Considerations
 
-Windows Security Events
+The repository should not contain sensitive information such as:
 
-Event ID 4625
+❌ Passwords
+❌ API keys
+❌ Access tokens
+❌ Client secrets
+❌ Authentication credentials
+❌ Azure-generated onboarding tokens
 
-Sysmon Event ID 1
+Azure-generated onboarding scripts containing authentication information should not be committed to a public repository.
 
-KQL queries
+Screenshots should also be reviewed before publishing to ensure sensitive identifiers or credentials are not exposed.
 
-Analytics Rules
+🧪 End-to-End Validation
 
-Security Alerts
+The final SOC workflow was validated as follows:
 
-Security Incidents
+🖥️ Windows Endpoint
+        │
+        ▼
+🔐 Security Logs + ⚙️ Sysmon
+        │
+        ▼
+🔗 Azure Arc
+        │
+        ▼
+📡 Azure Monitor Agent
+        │
+        ▼
+📋 Data Collection Rule
+        │
+        ▼
+📊 Log Analytics
+        │
+        ▼
+🛡️ Microsoft Sentinel
+        │
+        ▼
+🔎 KQL Detection
+        │
+        ▼
+🚨 Analytics Rule
+        │
+        ▼
+📢 Security Alert
+        │
+        ▼
+📌 Security Incident
+        │
+        ▼
+🔍 Investigation
+        │
+        ▼
+🎯 MITRE ATT&CK
+✅ Final Validation
+Component	Status
+🖥️ Windows Endpoint	✅
+🔗 Azure Arc	✅
+📡 Azure Monitor Agent	✅
+📋 Data Collection Rule	✅
+📊 Log Analytics	✅
+🛡️ Microsoft Sentinel	✅
+🔐 Windows Security Events	✅
+⚙️ Sysmon Events	✅
+🔎 KQL Detection	✅
+🚨 Analytics Rules	✅
+📢 Security Alerts	✅
+📌 Security Incidents	✅
+🔍 Incident Investigation	✅
+🎯 MITRE Mapping	✅
+🏁 Conclusion
 
-Investigation results
+This project demonstrates a complete Windows-focused SOC monitoring and detection workflow using Microsoft Sentinel.
 
-MITRE ATT&CK mapping
+The lab successfully covered:
 
-The screenshots demonstrate that the environment was actually configured
-and tested rather than being a documentation-only project.
-
-Before publishing the repository publicly, verify that screenshots do
-not contain passwords, tokens, API keys, personal information, or
-other secrets.
-
-21. Microsoft Defender Portal Limitation
-
-During the lab, some Microsoft Sentinel experiences in the Microsoft
-Defender portal intermittently redirected back to the SIEM
-Workspaces/settings area.
-
-The portal displayed a message similar to:
-
-This page was moved to the Microsoft Defender portal.
-
-The behavior was inconsistent: some Sentinel pages were accessible while
-Analytics/Incidents experiences could intermittently redirect.
-
-Importantly, this did not prevent validation of the underlying
-Sentinel backend.
-
-The following components were independently validated:
-
-Telemetry Ingestion
+📥 Telemetry Collection
         ↓
-Log Analytics Queries
+📊 Centralized Logging
         ↓
-Analytics Rules
+🔎 Detection Engineering
         ↓
-Security Alerts
+🚨 Alert Generation
         ↓
-Security Incidents
-
-The Analytics Rules were created and verified through the Sentinel
-backend, and alerts/incidents were confirmed using Log Analytics
-queries.
-
-Therefore, the portal UI limitation was treated as an
-environment/platform issue rather than a failure of the SOC detection
-pipeline.
-
-22. Security Considerations
-
-This repository documents a controlled cybersecurity laboratory.
-
-Testing Scope
-
-Testing was performed against a controlled Windows endpoint
-owned/managed for the lab.
-
-Authentication Testing
-
-A temporary local test account was used to generate failed
-authentication events.
-
-Credentials
-
-Do not commit:
-
-Passwords
-
-API keys
-
-Access tokens
-
-Azure credentials
-
-Connection strings
-
-Private keys
-
-Other secrets
-
-Controlled Activity
-
-The PowerShell and authentication activity used during validation was
-intentionally generated for detection testing.
-
-It should not be interpreted as evidence of an actual compromise.
-
-23. Lessons Learned
-
-This project provided practical experience with:
-
-Windows security telemetry
-
-Endpoint monitoring
-
-Azure Arc onboarding
-
-Azure Monitor Agent
-
-Data Collection Rules
-
-Azure Log Analytics
-
-Microsoft Sentinel
-
-KQL detection engineering
-
-Windows Event ID analysis
-
-Sysmon telemetry
-
-Analytics Rules
-
-Security alerts
-
-Security incidents
-
-False-positive investigation
-
-MITRE ATT&CK mapping
-
-SOC investigation methodology
-
-Troubleshooting cloud-based security monitoring pipelines
-
-Key Lesson
-
-A SOC pipeline should be validated stage by stage.
-
-When a query returns no results, an analyst should not immediately
-assume that the telemetry source is broken.
-
-In this project, investigating the available Event table instead of
-stopping at the empty SecurityEvent table revealed that the required
-Windows Security telemetry was actually being ingested successfully.
-
-24. Future Improvements
-
-The current implementation can be extended with:
-
-Detection Engineering
-
-Additional Windows Security Event detections
-
-More Sysmon event coverage
-
-Advanced PowerShell detections
-
-Suspicious parent-child process analysis
-
-Credential theft detections
-
-Lateral movement detections
-
-Persistence detections
-
-Threat Intelligence
-
-Threat intelligence enrichment
-
-IOC correlation
-
-Automated indicator lookup
-
-External threat intelligence feeds
-
-Investigation & Automation
-
-Automated MITRE ATT&CK mapping
-
-Automated incident summaries
-
-Automated remediation recommendations
-
-Threat hunting queries
-
-SOAR response playbooks
-
-Automated alert prioritization
-
-Telemetry Expansion
-
-Network telemetry
-
-DNS monitoring
-
-Firewall logs
-
-Authentication telemetry from additional systems
-
-Cloud security logs
-
-25. Final Outcome
-
-The project successfully demonstrated an end-to-end Windows SOC
-monitoring and detection workflow:
-
-Windows 11 Endpoint
+📌 Incident Creation
         ↓
-Azure Arc
+🔍 Investigation
         ↓
-Azure Monitor Agent
-        ↓
-Data Collection Rule
-        ↓
-Azure Log Analytics
-        ↓
-Microsoft Sentinel
-        ↓
-KQL
-        ↓
-Analytics Rules
-        ↓
-Security Alerts
-        ↓
-Security Incidents
-        ↓
-Investigation
-        ↓
-MITRE ATT&CK
-        ↓
-Analyst Assessment
+🎯 MITRE ATT&CK Mapping
 
-Key Results
+The project also demonstrates practical troubleshooting, including identifying the correct Log Analytics table, refining detection logic to reduce false positives, adjusting analytics-rule timing, and working around a Sentinel portal UI issue while validating the backend functionality.
 
-Windows endpoint successfully onboarded with Azure Arc.
+🛡️ Project Focus
 
-Azure Monitor Agent successfully deployed.
+Windows Security Monitoring • Microsoft Sentinel • Azure Arc • AMA • Sysmon • KQL • Detection Engineering • Incident Response • MITRE ATT&CK
 
-Windows Security telemetry successfully collected.
 
-Sysmon successfully integrated.
+### 👍 One important thing
 
-Event ID 4625 successfully detected.
-
-Sysmon Event ID 1 successfully detected.
-
-KQL detection queries developed and tested.
-
-PowerShell detection logic refined to reduce false positives.
-
-Multiple Sentinel Analytics Rules created.
-
-Security alerts successfully generated.
-
-Security incidents successfully generated.
-
-Incident investigation performed using KQL.
-
-MITRE ATT&CK techniques mapped.
-
-End-to-end SOC detection pipeline validated.
-
-26. Disclaimer
-
-This project is an educational cybersecurity laboratory created for
-defensive security monitoring, detection engineering, and SOC
-investigation practice.
-
-All testing described in this repository was performed in a controlled
-environment. The project is intended for authorized systems and
-educational use only.
-
-Project Summary
-
-Microsoft Sentinel SOC Lab demonstrates how a security analyst can
-move from raw endpoint telemetry to an actionable security incident
-using Microsoft Azure and Microsoft Sentinel.
-
-The most important outcome is not simply that logs were collected, but
-that the project validated the complete SOC workflow:
-
-Collect → Detect → Alert → Investigate → Assess → Map → Respond
+- 🏗️ = architecture
+- ☁️ = Azure
+- 🔐 = authentication/security
+- ⚙️ = configuration/Sysmon
+- 🔎 = investigation
+- 🚨 = detection/alert
+- 📌 = incident
+- 🎯 = MITRE
+- 🛠️ = troubleshooting
+- ✅ = validated
